@@ -15,12 +15,11 @@ class Agent:
         number_of_action = 0
         cumulated_reward = 0
         while not is_terminate:
-            state, reward, is_terminate = self.domain.step(policy.action(state))
+            state, reward, is_terminate = self.domain.step(policy(state))
             number_of_action += 1
             cumulated_reward += reward
 
-        print("Game over, number of action =", number_of_action, "cumulated reward =", cumulated_reward)
-
+        # print("Game over, number of action =", number_of_action, "cumulated reward =", cumulated_reward)
         return cumulated_reward, number_of_action
 
     def expected_return(self, policy, n=100):
