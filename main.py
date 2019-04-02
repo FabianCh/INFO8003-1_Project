@@ -6,5 +6,7 @@ agent = Agent()
 action = [4, 0]
 static_policy = StaticPolicy(action)
 
-agent.play(static_policy)
-print(agent.expected_return(static_policy))
+
+cumulated_reward, number_of_action = agent.play(static_policy)
+print("Game over, cumulated reward =", cumulated_reward, "number of action =", number_of_action)
+print("Expected retrun : ", agent.expected_return(static_policy))
