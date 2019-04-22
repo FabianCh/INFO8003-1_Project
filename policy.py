@@ -1,4 +1,5 @@
 from maximum_strategy import *
+import random
 
 # state :  x_bar_center, bar_vel, x_fruit_center, fruit_center
 
@@ -14,6 +15,11 @@ class StaticPolicy(Policy):
 
     def __call__(self, state):
         return self.action_value
+
+
+class RandomPolicy(Policy):
+    def __call__(self, state):
+        return random.uniform(-1.5, 1.5), 0
 
 
 class OptimalPolicy(Policy):
