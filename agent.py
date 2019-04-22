@@ -61,13 +61,17 @@ class Agent:
 
     def fitted_q_iteration(self, n):
         # collect the dataset
+        print('Collecting dataset...')
         dataset = random_from_buffer(self.buffer, 500)
+        print('dataset collected.\n')
+
         i = 0
-        while i < n:
+        while i <= n:
             # Creation of the estimator
             self.approximation_function_Qn.append(ExtremelyRandomizeTreeEstimator())
 
             # formatting the dataset
+            print('formatting the dataset...')
             train_x = []
             train_y = []
 
@@ -81,10 +85,11 @@ class Agent:
                     x, y = one_step_transition_formatting_qn(data, self.approximation_function_Qn[i-1], self.gamma)
                     train_x.append(x)
                     train_y.append(y)
+            print('dataset formatted.')
 
             # Learning the q function
-            print("learning Q", i)
+            print("learning Q" + str(i) + "...")
             self.approximation_function_Qn[-1].train(train_x, train_y)
 
-            print("function Q", i, "learnt")
+            print("function Q" + str(i) + " learnt.\n")
             i += 1
