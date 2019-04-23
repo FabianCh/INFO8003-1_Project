@@ -9,7 +9,6 @@ class ExtremelyRandomizeTreeEstimator(Estimator):
         self.estimator = ExtraTreesRegressor(n_estimators=30)
 
     def __call__(self, state, action):
-        state = [state[0] + state[2:]]
         x = np.array([state[i] for i in range(len(state))] + [action[0], action[1]]).reshape(1, -1)
         return self.estimator.predict(x)[0]
 
