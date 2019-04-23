@@ -1,19 +1,21 @@
 from estimator.estimator import Estimator
-from sklearn.ensemble.forest import ExtraTreesRegressor
+
 import numpy as np
+import sklearn.linear_model as skl_lm
+import sklearn.preprocessing as skl_pp
 
 
-class ExtremelyRandomizeTreeEstimator(Estimator):
+class LinearRegressorEstimator(Estimator):
 
     def __init__(self):
-        self.estimator = ExtraTreesRegressor(n_estimators=30)
+        self.estimator = skl_lm.LinearRegression()
+        self.scaler = skl_pp.StandardScaler()
 
     def __call__(self, state, action):
-        state = [state[0] + state[2:]]
         x = np.array([state[i] for i in range(len(state))] + [action[0], action[1]]).reshape(1, -1)
         return self.estimator.predict(x)[0]
 
     def train(self, train_in, train_out):
-        train_in_formatted = train_in
-        train_in_formatted = np.array(train_in_formatted)
+
+        train_in_formatted = np.array(train_in)
         self.estimator.fit(train_in_formatted, train_out)

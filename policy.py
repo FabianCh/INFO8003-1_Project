@@ -27,4 +27,4 @@ class OptimalPolicy(Policy):
         self.function_Qn_approximate = function_qn_approximate
 
     def __call__(self, state):
-        return argument_maximum_uniform_sampling(self.function_Qn_approximate, state, 20)
+        return argument_maximum_uniform_sampling(self.function_Qn_approximate, state, 5)

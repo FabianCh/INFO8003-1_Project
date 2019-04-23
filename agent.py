@@ -1,16 +1,24 @@
+from buffer.buffer import Buffer
+from buffer.buffer_strategy import *
 from catcher import ContinuousCatcher
 from estimator.randomize_tree_estimator import ExtremelyRandomizeTreeEstimator
-from buffer_strategy import *
+
+import imageio
+import numpy
 
 
 class Agent:
-    def __init__(self):
-        self.approximation_function_Qn = []
-        self.buffer = []
+    def __init__(self, buffer, estimator):
         self.domain = ContinuousCatcher()
         self.gamma = self.domain.gamma()
 
+        self.buffer = buffer
+        self.estimator = estimator
+
+        self.approximation_function_Qn = []
+
     def play(self, policy):
+        """Play a game of catcher"""
         self.domain.reset()
         state = self.domain.observe()
 
@@ -18,38 +26,44 @@ class Agent:
         number_of_action = 0
         cumulated_reward = 0
         while not is_terminate:
-            state, reward, is_terminate = self.domain.step(policy(state))
+            action = policy(state)
+            # print(action)
+            state, reward, is_terminate = self.domain.step(action)
             number_of_action += 1
             cumulated_reward += reward
+            if reward == 3:
+                print ("Hit : ")
+                print(state)
+                print(is_terminate)
 
         # print("Game over, number of action =", number_of_action, "cumulated reward =", cumulated_reward)
         return cumulated_reward, number_of_action
 
     def reinitialize_buffer(self):
         """Reinitialize the buffer"""
-        self.buffer = []
+        self.buffer.reset()
 
     def generate_one_step_transition(self, policy, n):
         """Complete the buffer with n one step transition with the given policy"""
         number_of_action = 0
 
-        while True:
+        while number_of_action < n:
             self.domain.reset()
-            state = self.domain.observe()
-
+            initial_state = self.domain.observe()
             is_terminate = False
-            while not is_terminate:
-                action = policy(state)
-                one_step_transition = [state, action]
 
-                state, reward, is_terminate = self.domain.step(action)
+            while not is_terminate and number_of_action <= n:
+                action = policy(initial_state)
+                final_state, reward, is_terminate = self.domain.step(action)
 
-                one_step_transition.append(reward)
-                one_step_transition.append(state)
-                self.buffer.append(one_step_transition)
+                one_step_transition = (initial_state, action, reward, final_state)
+                self.buffer.add_sample(one_step_transition)
+                if reward == 3:
+                    print("Hit : ")
+                    print(initial_state)
+                initial_state = final_state
+
                 number_of_action += 1
-                if number_of_action >= n:
-                    return None
 
     def expected_return(self, policy, n=100):
         """method to return the expected value with a policy in a domain"""
@@ -60,15 +74,21 @@ class Agent:
         return cumulated_reward
 
     def fitted_q_iteration(self, n):
-        # collect the dataset
-        print('Collecting dataset...')
-        dataset = random_from_buffer(self.buffer, 500)
-        print('dataset collected.\n')
+        if self.buffer.is_empty():
+            print("Empty Buffer")
+            return
 
-        i = 0
-        while i <= n:
+        for i in range(n):
+            # collect the dataset
+            print('Collecting dataset...')
+            dataset = self.buffer.get_sample(2000)
+            print(dataset)
+            print('dataset collected.\n')
+
             # Creation of the estimator
-            self.approximation_function_Qn.append(ExtremelyRandomizeTreeEstimator())
+            if i >= len(self.approximation_function_Qn):
+                print("Cretion of a new estimator")
+                self.approximation_function_Qn.append(self.estimator())
 
             # formatting the dataset
             print('formatting the dataset...')
@@ -92,4 +112,45 @@ class Agent:
             self.approximation_function_Qn[-1].train(train_x, train_y)
 
             print("function Q" + str(i) + " learnt.\n")
-            i += 1
+
+    def show(self, policy):
+        self.domain.reset()
+        state = self.domain.observe()
+
+        window_width = self.domain.width
+        window_height = self.domain.height
+
+        y_bar = self.domain.bar.center[1]
+        bar_width = self.domain.bar.size[0]
+        bar_height = self.domain.bar.size[1]
+
+        size_fruit = self.domain.fruit.size[0]
+
+        def draw_bar(image, position):
+            position = int(position)
+            if 0 < position <= window_width - bar_width//2:
+                image[y_bar: y_bar + bar_height, position - bar_width // 2: position + bar_width // 2 + 1] = np.full((bar_height, bar_width), 1)
+
+        def draw_fruit(image, x, y):
+            x = int(x)
+            y = int(y)
+            if 0 < y <= window_height - size_fruit:
+                image[y: y + size_fruit, x: x + size_fruit] = np.full((size_fruit, size_fruit), 1)
+
+        is_terminate = False
+        number_of_action = 0
+        cumulated_reward = 0
+        with imageio.get_writer('animation.gif', mode='I', fps=10) as writer:
+            while not is_terminate:
+                img = numpy.zeros((window_height, window_width))
+                state, reward, is_terminate = self.domain.step(policy(state))
+                number_of_action += 1
+                cumulated_reward += reward
+                draw_bar(img, state[0])
+                draw_fruit(img, state[2], state[3])
+                writer.append_data(img)
+                if reward == 3:
+                    print("Hit : ")
+                    print(state)
+
+        return cumulated_reward, number_of_action
