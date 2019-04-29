@@ -3,6 +3,9 @@ import random
 
 
 class PriorityBuffer(Buffer):
+    """
+        Return the sample from the last returned to the most returned
+    """
 
     def __init__(self):
         self.samples = []

@@ -1,17 +1,16 @@
 from agent import Agent
-from buffer.random_buffer import RandomBuffer
-from buffer.priority_buffer import PriorityBuffer
 from buffer.ordered_buffer import OrderedBuffer
-from estimator.linear_regressor_estimator import  LinearRegressorEstimator
 from estimator.randomize_tree_estimator import ExtremelyRandomizeTreeEstimator
-from policy import *
-import catcher
+from max_finder.uniform_sampler import UniformSampler
+from policy.random_policy import RandomPolicy
+from policy.static_policy import StaticPolicy
 
-agent = Agent(OrderedBuffer(), ExtremelyRandomizeTreeEstimator)
-
-action = [4, 0]
-static_policy = StaticPolicy(action)
+static_policy = StaticPolicy((4, 0))
 random_policy = RandomPolicy()
+
+uniform_sampler = UniformSampler(7, 1.5)
+agent = Agent(OrderedBuffer(), ExtremelyRandomizeTreeEstimator, uniform_sampler)
+
 
 # domain = catcher.ContinuousCatcher()
 # print(domain.bar.size)
@@ -24,11 +23,11 @@ random_policy = RandomPolicy()
 
 
 print('Generating buffer...')
-agent.generate_one_step_transition(random_policy, 1000)
-print('buffer generated\n')
+agent.generate_one_step_transition(random_policy)
+print('Buffer generated\n')
 
 agent.fitted_q_iteration(50)
-optimal_policy = OptimalPolicy(agent.approximation_function_Qn[-1])
+optimal_policy = agent.get_optimal_policy()
 
 cumulated_reward, number_of_action = agent.play(optimal_policy)
 print("Game over, cumulated reward =", cumulated_reward, "number of action =", number_of_action)

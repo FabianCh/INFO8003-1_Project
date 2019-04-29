@@ -3,6 +3,9 @@ import random
 
 
 class RandomBuffer(Buffer):
+    """
+        Return sample at random
+    """
 
     def __init__(self):
         self.samples = []

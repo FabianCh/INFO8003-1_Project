@@ -234,22 +234,21 @@ class ContinuousCatcher:
         l1x, l1y = x1 - w1 / 2.0, y1 - h1 / 2.0
         l2x, l2y = x2 - w2 / 2.0, y2 - h2 / 2.0
 
-        # return (
-        #         l1y < l2y + h2 and
-        #         l2y < l1y + h1 and
-        #         l1x < l2x + w2 and
-        #         l2x < l1x + w1)
-        if l1y < l2y + h2 and l2y < l1y + h1 and l1x < l2x + w2 and l2x < l1x + w1:
-            print()
-            print(x1, y1, w1, h1)
-            print(x2, y2, w2, h2)
-            print (l1x, l1y, l2x, l2y)
-            print (l1y, l2y + h2)
-            print (l2y, l1y + h1)
-            print (l1x, l2x + w2)
-            print (l2x, l1x + w1)
-            return True
-        return False
+        return (l1y < l2y + h2 and
+                l2y < l1y + h1 and
+                l1x < l2x + w2 and
+                l2x < l1x + w1)
+        # if l1y < l2y + h2 and l2y < l1y + h1 and l1x < l2x + w2 and l2x < l1x + w1:
+        #     # print()
+        #     # print(x1, y1, w1, h1)
+        #     # print(x2, y2, w2, h2)
+        #     # print (l1x, l1y, l2x, l2y)
+        #     # print (l1y, l2y + h2)
+        #     # print (l2y, l1y + h1)
+        #     # print (l1x, l2x + w2)
+        #     # print (l2x, l1x + w1)
+        #     return True
+        # return False
 
     def step(self, act):
         """

@@ -2,6 +2,9 @@ from buffer.buffer import Buffer
 
 
 class OrderedBuffer(Buffer):
+    """
+        Return the sample from the first to the lst added
+    """
 
     def __init__(self):
         self.samples = []
