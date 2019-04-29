@@ -1,5 +1,5 @@
 from buffer.buffer import Buffer
-from buffer.buffer_strategy import *
+from maximum_strategy import *
 from catcher import ContinuousCatcher
 from estimator.randomize_tree_estimator import ExtremelyRandomizeTreeEstimator
 
@@ -81,8 +81,8 @@ class Agent:
         for i in range(n):
             # collect the dataset
             print('Collecting dataset...')
-            dataset = self.buffer.get_sample(2000)
-            print(dataset)
+            dataset = self.buffer.get_sample(1000)
+            # print(dataset)
             print('dataset collected.\n')
 
             # Creation of the estimator
@@ -97,12 +97,16 @@ class Agent:
 
             if i == 0:
                 for data in dataset:
-                    x, y = one_step_transition_formatting_q0(data)
+                    x = [data[0][0], data[0][1], data[0][2], data[0][3], data[1][0], data[1][1]]
+                    y = data[2]
                     train_x.append(x)
                     train_y.append(y)
             else:
                 for data in dataset:
-                    x, y = one_step_transition_formatting_qn(data, self.approximation_function_Qn[i-1], self.gamma)
+                    x = [data[0][0], data[0][1], data[0][2], data[0][3], data[1][0], data[1][1]]
+                    x_prime = [data[3][0], data[3][1], data[3][2], data[3][3]]
+                    y = data[2] +\
+                        self.gamma * maximum_uniform_sampling(self.approximation_function_Qn[i-1], x_prime, 7)
                     train_x.append(x)
                     train_y.append(y)
             print('dataset formatted.')
@@ -128,13 +132,13 @@ class Agent:
 
         def draw_bar(image, position):
             position = int(position)
-            if 0 < position <= window_width - bar_width//2:
+            if 0 < position < window_width - bar_width//2:
                 image[y_bar: y_bar + bar_height, position - bar_width // 2: position + bar_width // 2 + 1] = np.full((bar_height, bar_width), 1)
 
         def draw_fruit(image, x, y):
             x = int(x)
             y = int(y)
-            if 0 < y <= window_height - size_fruit:
+            if 0 < y < window_height - size_fruit:
                 image[y: y + size_fruit, x: x + size_fruit] = np.full((size_fruit, size_fruit), 1)
 
         is_terminate = False

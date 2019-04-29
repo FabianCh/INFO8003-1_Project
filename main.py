@@ -7,7 +7,7 @@ from estimator.randomize_tree_estimator import ExtremelyRandomizeTreeEstimator
 from policy import *
 import catcher
 
-agent = Agent(RandomBuffer(), ExtremelyRandomizeTreeEstimator)
+agent = Agent(OrderedBuffer(), ExtremelyRandomizeTreeEstimator)
 
 action = [4, 0]
 static_policy = StaticPolicy(action)
@@ -27,13 +27,13 @@ print('Generating buffer...')
 agent.generate_one_step_transition(random_policy, 1000)
 print('buffer generated\n')
 
-agent.fitted_q_iteration(20)
+agent.fitted_q_iteration(50)
 optimal_policy = OptimalPolicy(agent.approximation_function_Qn[-1])
 
-cumulated_reward, number_of_action = agent.play(random_policy)
+cumulated_reward, number_of_action = agent.play(optimal_policy)
 print("Game over, cumulated reward =", cumulated_reward, "number of action =", number_of_action)
 
-# print("Expected return : ", agent.expected_return(optimal_policy))
+print("Expected return : ", agent.expected_return(optimal_policy))
 agent.show(optimal_policy)
 
 # print(agent.approximation_function_Qn[-1]._coeff)
