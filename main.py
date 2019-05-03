@@ -1,6 +1,8 @@
 from agent.fitted_q_iteration import FittedQIteration
 from agent.parametric_q_iteration import ParamtricQIteratoin
 from buffer.ordered_buffer import OrderedBuffer
+from buffer.priority_buffer import PriorityBuffer
+from buffer.random_buffer import RandomBuffer
 from estimator.randomize_tree_estimator import ExtremelyRandomizeTreeEstimator
 from max_finder.uniform_sampler import UniformSampler
 from policy.random_policy import RandomPolicy
@@ -14,11 +16,11 @@ agent = ParamtricQIteratoin(OrderedBuffer(), ExtremelyRandomizeTreeEstimator, un
 
 
 print('Generating buffer...')
-agent.generate_one_step_transition(random_policy, 100)
+agent.generate_one_step_transition(random_policy, 1000)
 print('Buffer generated\n')
 
 
-agent.train(25, 100)
+agent.train(100, 1000)
 optimal_policy = agent.get_optimal_policy()
 
 cumulated_reward, number_of_action = agent.play(optimal_policy)
