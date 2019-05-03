@@ -47,7 +47,11 @@ agent = FittedQIteration(buffer, Estimator, Maximizer)
 
 random_policy = RandomPolicy()
 print('Generating buffer...')
-NumberOfOST = int(config['Train']['NumberOfOST'])
+NumberOfOST = config['Train']['NumberOfOST']
+if NumberOfOST == 'None':
+    NumberOfOST = None
+else:
+    NumberOfOST = int(NumberOfOST)
 agent.generate_one_step_transition(random_policy, NumberOfOST)
 print('Buffer generated\n')
 
@@ -57,33 +61,28 @@ DatasetSize = int(config['Train']['DatasetSize'])
 agent.train(Depth, DatasetSize)
 optimal_policy = agent.get_optimal_policy()
 
-with open('log.csv', 'a', newline='') as csv_file:
-    csv_writer = csv.writer(csv_file, delimiter=',')
-    conf = []
-    for part in config:
-        conf.append(part)
-        for param in config[part]:
-            conf.append(param + ':' + config[part][param])
-    csv_writer.writerow(conf)
-
-Exp_ret = agent.expected_return(optimal_policy)
-with open('log.csv', 'a', newline='') as csv_file:
-    csv_writer = csv.writer(csv_file, delimiter=',')
-    csv_writer.writerow([Exp_ret])
-
+Expected_return_table = list()
+Expected_return_table.append(agent.expected_return(optimal_policy))
 
 policy = optimal_policy
 
 for _ in range(10):
     agent.generate_one_step_transition(policy)
-    agent.train()
+    agent.train(Depth, DatasetSize)
     policy = GreedyPolicy(agent.approximation_function_Qn[-1], Maximizer, 0.1)
-    Exp_ret = agent.expected_return(policy)
-
-    with open('log.csv', 'a', newline='') as csv_file:
-        csv_writer = csv.writer(csv_file, delimiter=',')
-        csv_writer.writerow([Exp_ret])
+    Expected_return_table.append(agent.expected_return(policy))
 
 
+# region Log creation
+filename = 'output/log/log_'
+for part in config:
+    if part != 'DEFAULT':
+        filename += part + '--'
+    for param in config[part]:
+        filename += param + '_' + config[part][param] + '-'
+filename + '.csv'
 
-
+with open(filename, 'a', newline='') as csv_file:
+    csv_writer = csv.writer(csv_file, delimiter=',')
+    csv_writer.writerow(Expected_return_table)
+# endregion
