@@ -1,5 +1,4 @@
 from catcher import ContinuousCatcher
-from policy.function_policy import FunctionPolicy
 
 import imageio
 import numpy

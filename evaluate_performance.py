@@ -8,6 +8,8 @@ from estimator.randomize_tree_estimator import ExtremelyRandomizeTreeEstimator
 from estimator.neural_network import NeuralNetworkEstimator
 from max_finder.uniform_sampler import UniformSampler
 from policy.random_policy import RandomPolicy
+from policy.greedy_policy import GreedyPolicy
+import csv
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -55,7 +57,32 @@ DatasetSize = int(config['Train']['DatasetSize'])
 agent.train(Depth, DatasetSize)
 optimal_policy = agent.get_optimal_policy()
 
-print("Expected return of the agent: ", agent.expected_return(optimal_policy))
+with open('log.csv', 'a', newline='') as csv_file:
+    csv_writer = csv.writer(csv_file, delimiter=',')
+    conf = []
+    for part in config:
+        conf.append(part)
+        for param in config[part]:
+            conf.append(param + ':' + config[part][param])
+    csv_writer.writerow(conf)
+
+Exp_ret = agent.expected_return(optimal_policy)
+with open('log.csv', 'a', newline='') as csv_file:
+    csv_writer = csv.writer(csv_file, delimiter=',')
+    csv_writer.writerow([Exp_ret])
+
+
+policy = optimal_policy
+
+for _ in range(10):
+    agent.generate_one_step_transition(policy)
+    agent.train()
+    policy = GreedyPolicy(agent.approximation_function_Qn[-1], Maximizer, 0.1)
+    Exp_ret = agent.expected_return(policy)
+
+    with open('log.csv', 'a', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file, delimiter=',')
+        csv_writer.writerow([Exp_ret])
 
 
 
