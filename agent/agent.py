@@ -20,11 +20,12 @@ class Agent:
         """
         self.buffer.reset()
 
-    def play(self, policy):
+    def play(self, policy, verbose=True):
         """
             Play a game of catcher
         """
-        print("Game started")
+        if verbose:
+            print("Game started")
         self.domain.reset()
         state = self.domain.observe()
 
@@ -37,11 +38,12 @@ class Agent:
             number_of_action += 1
             cumulated_reward += reward
             if reward == 3:
-                print("    Hit : " + str(state))
-
-        print("Game ended :")
-        print("  number of action = ", number_of_action)
-        print("  cumulated reward = ", cumulated_reward)
+                if verbose:
+                    print("    Hit : " + str(state))
+        if verbose:
+            print("Game ended :")
+            print("  number of action = ", number_of_action)
+            print("  cumulated reward = ", cumulated_reward)
         return cumulated_reward, number_of_action
 
     def show(self, policy, animation_title=None):
@@ -123,7 +125,7 @@ class Agent:
         """
         cumulated_reward = 0
         for _ in range(n):
-            cumulated_reward += self.play(policy)[0]
+            cumulated_reward += self.play(policy, verbose=False)[0]
 
         res = cumulated_reward / n
         print("\n Extected return : " + str(res))
