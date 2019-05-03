@@ -14,7 +14,7 @@ import csv
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-# region Agent_Initialisation
+# region Parameter Initialisation
 BufferType = config['Agent']['Buffer']
 if BufferType == 'Ordered':
     buffer = OrderedBuffer()
@@ -42,21 +42,22 @@ if MaximizerType == 'UniformSampling':
 else:
     raise ValueError('Maximizer unknown')
 
-agent = FittedQIteration(buffer, Estimator, Maximizer)
-# endregion
-
-random_policy = RandomPolicy()
-print('Generating buffer...')
 NumberOfOST = config['Train']['NumberOfOST']
 if NumberOfOST == 'None':
     NumberOfOST = None
 else:
     NumberOfOST = int(NumberOfOST)
-agent.generate_one_step_transition(random_policy, NumberOfOST)
-print('Buffer generated\n')
 
 Depth = int(config['Train']['Depth'])
 DatasetSize = int(config['Train']['DatasetSize'])
+# endregion
+
+agent = FittedQIteration(buffer, Estimator, Maximizer)
+
+random_policy = RandomPolicy()
+print('Generating buffer...')
+agent.generate_one_step_transition(random_policy, NumberOfOST)
+print('Buffer generated\n')
 
 agent.train(Depth, DatasetSize)
 optimal_policy = agent.get_optimal_policy()
