@@ -8,7 +8,7 @@ from policy.static_policy import StaticPolicy
 static_policy = StaticPolicy((4, 0))
 random_policy = RandomPolicy()
 
-uniform_sampler = UniformSampler(7, 1.5)
+uniform_sampler = UniformSampler(5, 1.3)
 agent = Agent(OrderedBuffer(), ExtremelyRandomizeTreeEstimator, uniform_sampler)
 
 
@@ -23,10 +23,10 @@ agent = Agent(OrderedBuffer(), ExtremelyRandomizeTreeEstimator, uniform_sampler)
 
 
 print('Generating buffer...')
-agent.generate_one_step_transition(random_policy)
+agent.generate_one_step_transition(random_policy,100)
 print('Buffer generated\n')
 
-agent.fitted_q_iteration(50)
+agent.fitted_q_iteration(100,500)
 optimal_policy = agent.get_optimal_policy()
 
 cumulated_reward, number_of_action = agent.play(optimal_policy)

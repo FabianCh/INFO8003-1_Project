@@ -15,6 +15,8 @@ class Agent:
         self.maximizer = maximizer
 
         self.approximation_function_Qn = []
+        self.Qn = estimator()
+        self.alpha = 0.005
 
     def reinitialize_buffer(self):
         """
@@ -131,7 +133,7 @@ class Agent:
         print("\n Extected return : " + str(res))
         return res
 
-    def fitted_q_iteration(self, depth=25, dataset_size=100):
+    def fitted_q_iteration(self, depth=100, dataset_size=100):
         if self.buffer.is_empty():
             print("Empty Buffer")
             return
@@ -151,6 +153,7 @@ class Agent:
             print('formatting the dataset...')
             train_x = []
             train_y = []
+            train_y_2 = []
 
             if i == 0:
                 for data in dataset:
@@ -158,21 +161,30 @@ class Agent:
                     y = data[2]
                     train_x.append(x)
                     train_y.append(y)
+                    train_y_2.append(y)
             else:
                 for data in dataset:
                     x = [data[0][0], data[0][1], data[0][2], data[0][3], data[1][0], data[1][1]]
                     x_prime = [data[3][0], data[3][1], data[3][2], data[3][3]]
-                    y = data[2] +\
-                        self.gamma * self.maximizer.value(self.approximation_function_Qn[i-1], x_prime)
+                    # y = data[2] +\
+                    #     self.gamma * self.maximizer.value(self.approximation_function_Qn[i-1], x_prime)
                     train_x.append(x)
-                    train_y.append(y)
+                    # train_y.append(y)
+                    y = data[2] + \
+                        self.gamma * (self.maximizer.value(self.Qn, x_prime) - self.Qn(x[:4], x[4:]))
+
+                    y_2 = self.Qn(x[:4], x[4:]) + self.alpha * y
+                    train_y_2.append(y_2)
+
+
             print('dataset formatted.')
 
             # Learning the q function
             print("learning Q" + str(i) + "...")
-            self.approximation_function_Qn[-1].train(train_x, train_y)
-
+            # self.approximation_function_Qn[-1].train(train_x, train_y)
+            self.Qn.train(train_x, train_y_2)
             print("function Q" + str(i) + " learnt.\n")
 
     def get_optimal_policy(self):
-        return FunctionPolicy(self.approximation_function_Qn[-1], self.maximizer)
+        # return FunctionPolicy(self.approximation_function_Qn[-1], self.maximizer)
+        return FunctionPolicy(self.Qn, self.maximizer)

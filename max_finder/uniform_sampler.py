@@ -1,5 +1,5 @@
 import numpy as np
-
+import random
 
 class UniformSampler:
     def __init__(self, samples_number, arg_max):
@@ -8,18 +8,20 @@ class UniformSampler:
         self.samples = np.linspace(-self.arg_max, self.arg_max, self.sample_number)
 
     def value(self, function, state):
-        maximum = function(state, [-self.arg_max, 0])
-        for arg in self.samples:
+        samples = [random.uniform(-self.arg_max, self.arg_max) for _ in range(self.sample_number)]
+        maximum = function(state, [samples[0], 0])
+        for arg in samples:
             value = function(state, [arg, 0])
             if value > maximum:
                 maximum = value
         return maximum
 
-    def arg(self, function_qn, state):
-        maximum_value = function_qn(state, [-self.arg_max, 0])
-        maximum_argument = - self.arg_max
-        for arg in self.samples:
-            value = function_qn(state, [arg, 0])
+    def arg(self, function, state):
+        samples = [random.uniform(-self.arg_max, self.arg_max) for _ in range(self.sample_number)]
+        maximum_value = function(state, [samples[0], 0])
+        maximum_argument = samples[0]
+        for arg in samples:
+            value = function(state, [arg, 0])
             if value > maximum_value:
                 maximum_value = value
                 maximum_argument = arg
