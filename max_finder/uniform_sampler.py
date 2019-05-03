@@ -1,6 +1,7 @@
 import numpy as np
 import random
 
+
 class UniformSampler:
     def __init__(self, samples_number, arg_max):
         self.sample_number = samples_number
