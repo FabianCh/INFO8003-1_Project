@@ -6,11 +6,13 @@ import numpy
 
 class ParamtricQIteratoin(Agent):
 
-    def __init__(self, buffer, estimator, maximazer):
-        super(ParamtricQIteratoin, self).__init__(buffer, estimator, maximazer)
+    def __init__(self, buffer, estimator, maximizer):
+        super(ParamtricQIteratoin, self).__init__(buffer, estimator, maximizer)
 
         self.Q = self.estimator()
         self.parameter = 0
+        self.target_network = self.Q
+        self.target_network_parameter = self.parameter
         self.learning_ratio = 0.05
 
     def train(self, depth=100, dataset_size=25):
