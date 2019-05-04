@@ -4,13 +4,22 @@ from policy.greedy_policy import GreedyPolicy
 from estimator.neural_network import NeuralNetworkEstimator
 
 
+# def copyModel2Model(model_source,model_target,certain_layer=""):
+#     for l_tg,l_sr in zip(model_target.layers,model_source.layers):
+#         wk0=l_sr.get_weights()
+#         l_tg.set_weights(wk0)
+#         if l_tg.name==certain_layer:
+#             break
+#     print("model source was copied into model target")
+
+
 class DQNAgent(Agent):
 
     def __init__(self, buffer, maximazer):
         super(DQNAgent, self).__init__(buffer, NeuralNetworkEstimator, maximazer)
 
         self.Q = self.estimator()
-        self.learning_ratio = 0.05
+        self.target = self.estimator()
 
     def PlayDQN(self, T):
         self.domain.reset()
