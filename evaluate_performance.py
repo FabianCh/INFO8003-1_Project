@@ -67,7 +67,7 @@ Expected_return_table.append(agent.expected_return(optimal_policy))
 
 policy = optimal_policy
 
-for _ in range(10):
+for _ in range(100):
     agent.generate_one_step_transition(policy)
     agent.train(Depth, DatasetSize)
     policy = GreedyPolicy(agent.approximation_function_Qn[-1], Maximizer, 0.1)

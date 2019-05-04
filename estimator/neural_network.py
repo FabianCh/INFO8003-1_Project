@@ -9,7 +9,7 @@ class NeuralNetworkEstimator:
         self.model = Sequential()
         self.model.add(Dense(10, input_shape=(6,), activation='relu'))
         self.model.add(Dense(1, activation='linear'))
-        self.model.compile(optimizer='rmsprop', loss='mse')
+        self.model.compile(optimizer='sgd', loss='mse')
 
     def __call__(self, state, action):
         x = np.array([state[i] for i in range(len(state))] + [action[0], action[1]]).reshape(1, -1)
@@ -19,4 +19,4 @@ class NeuralNetworkEstimator:
 
         train_in = np.array(train_in)
         train_out = np.array(train_out)
-        self.model.fit(train_in, train_out, epochs=100, batch_size=32)
+        self.model.fit(train_in, train_out, epochs=50, batch_size=10, verbose=0)
