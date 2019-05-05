@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class UniformSampler:
+class StaticSampler:
     def __init__(self, samples_number, arg_max):
         self.sample_number = samples_number
         self.arg_max = arg_max

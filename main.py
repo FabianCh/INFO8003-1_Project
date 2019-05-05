@@ -5,6 +5,7 @@ from buffer.priority_buffer import PriorityBuffer
 from buffer.random_buffer import RandomBuffer
 from estimator.randomize_tree_estimator import ExtremelyRandomizeTreeEstimator
 from max_finder.uniform_sampler import UniformSampler
+from max_finder.static_sampler import Sta
 from policy.random_policy import RandomPolicy
 from policy.static_policy import StaticPolicy
 
