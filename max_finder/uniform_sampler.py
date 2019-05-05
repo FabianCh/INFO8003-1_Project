@@ -19,7 +19,9 @@ class UniformSampler:
         return maximum
 
     def arg(self, function, state):
-        samples = [random.uniform(-self.arg_max, self.arg_max) for _ in range(self.sample_number)]
+        samples = [random.uniform(-self.arg_max, 0) for _ in range(self.sample_number)] + \
+                  [0] + \
+                  [random.uniform(0, self.arg_max) for _ in range(self.sample_number)]
         maximum_value = function(state, [samples[0], 0])
         maximum_argument = samples[0]
         for arg in samples:
