@@ -12,7 +12,7 @@ static_policy = StaticPolicy((4, 0))
 random_policy = RandomPolicy()
 
 uniform_sampler = UniformSampler(5, 1.3)
-agent = FittedQIteration(RandomBuffer(), ExtremelyRandomizeTreeEstimator, uniform_sampler)
+agent = FittedQIteration(OrderedBuffer(), ExtremelyRandomizeTreeEstimator, uniform_sampler)
 
 
 print('Generating buffer...')

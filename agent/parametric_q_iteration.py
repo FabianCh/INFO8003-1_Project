@@ -16,9 +16,7 @@ class ParamtricQIteratoin(Agent):
         self.learning_ratio = 0.05
 
     def train(self, depth=100, dataset_size=25):
-        if self.buffer.is_empty():
-            print("Empty Buffer")
-            return
+        assert not self.buffer.is_empty(), print("Empty Buffer")
 
         for i in range(depth):
             # collect the dataset
