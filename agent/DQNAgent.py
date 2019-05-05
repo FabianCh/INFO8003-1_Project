@@ -38,6 +38,8 @@ class DQNAgent(Agent):
 
             self.train()
 
+            policy = self.get_optimal_policy()
+
             if t % 10000 == 0:
                 self.target_Q.copy(self.Q)
 
