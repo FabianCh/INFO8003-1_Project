@@ -9,10 +9,8 @@ class TestAgent(Agent):
     def __init__(self, buffer, estimator, maximizer):
         super(TestAgent, self).__init__(buffer, estimator, maximizer)
 
-        self.Q_A = self.estimator()
-        self.Q_B = self.estimator()
-        self.parameter_A = 0
-        self.parameter_B = 0
+        self.Q = self.estimator()
+        self.parameter = 0
         self.learning_ratio = 0.05
 
     def train(self, dataset_size=100, epoch=1):
@@ -20,8 +18,8 @@ class TestAgent(Agent):
             print("Empty Buffer")
             return
 
-        saved_parameter_A = self.parameter_A
-        saved_parameter_B = self.parameter_B
+        saved_estimator = self.Q
+        saved_parameter = self.parameter
 
         for i in range(epoch):
             # collect the dataset
