@@ -12,7 +12,6 @@ from maximizer.static_sampler import StaticSampler
 from maximizer.uniform_sampler import UniformSampler
 from maximizer.balanced_uniform_sampler import BalancedUniformSampler
 from policy.random_policy import RandomPolicy
-from policy.greedy_policy import GreedyPolicy
 import csv
 
 # region Parameter Initialisation
@@ -60,8 +59,8 @@ if NumberOfOST == 'None':
 else:
     NumberOfOST = int(NumberOfOST)
 
-Depth = int(config['Train']['Depth'])
-DatasetSize = int(config['Train']['DatasetSize'])
+Episode = int(config['Train']['Episode'])
+MiniBatchSize = int(config['Train']['MiniBatchSize'])
 # endregion
 
 # region Agent Initialisation
@@ -93,8 +92,8 @@ print('Buffer generated\n')
 
 
 agent.play_and_train(iteration_number=1000, initial_buffer_size=0, target_network_update=10000, reset=False)
-for _ in range(1):
-    agent.play_and_train(iteration_number=1000,initial_buffer_size=0, target_network_update=10000, reset=False)
+for _ in range(Episode):
+    agent.play_and_train(iteration_number=1000, initial_buffer_size=0, target_network_update=10000, reset=False)
     policy = agent.get_greedy_policy()
     expected_reward, mean_hits = agent.expected_return_and_hit(policy)
     with open(filename, 'a', newline='') as csv_file:
