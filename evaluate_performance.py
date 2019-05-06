@@ -16,7 +16,7 @@ import csv
 
 # region Parameter Initialisation
 config = configparser.ConfigParser()
-config.read('config.ini')
+config.read('config1.ini')
 
 
 BufferType = config['Agent']['Buffer']
@@ -94,11 +94,12 @@ print('Buffer generated\n')
 
 agent.play_and_train(iteration_number=1000, reset=True)
 for _ in range(Episode):
+    print("New episode")
     agent.play_and_train(iteration_number=1000, reset=False)
     policy = agent.get_greedy_policy()
     expected_reward, mean_hits = agent.expected_return_and_hit(policy)
     with open(filename, 'a', newline='') as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=',')
-        csv_writer.writerow(expected_reward, mean_hits)
+        csv_writer.writerow(expected_reward)
 
 # endregion

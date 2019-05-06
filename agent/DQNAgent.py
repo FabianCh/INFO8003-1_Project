@@ -7,8 +7,10 @@ from estimator.neural_network import NeuralNetworkEstimator
 
 class DQNAgent(Agent):
 
-    def __init__(self, buffer, maximizer, decrease_rate=0.000001, target_network_update=10000):
-        super(DQNAgent, self).__init__(buffer, NeuralNetworkEstimator, maximizer)
+    def __init__(self, buffer, maximizer,
+                 decrease_rate=0.000001,
+                 target_network_update=10000):
+        super(DQNAgent, self).__init__(NeuralNetworkEstimator, buffer, maximizer)
 
         self.Q = self.estimator()
         self.target_Q = self.estimator()
@@ -23,45 +25,40 @@ class DQNAgent(Agent):
     def reinitialize_actions(self):
         self.actions_taken = 0
 
-    def play_and_train(self, iteration_number=100000, reset=True):
-
-        policy = self.get_greedy_policy()
-
-        if reset:
-            self.domain.reset()
-            policy = RandomPolicy()
+    def play_and_train(self, iteration_number=1000):
 
         state, is_terminate = self.domain.observe(), False
 
         action_number = 1
         while action_number < iteration_number:
             if is_terminate:
-                self.domain.reset()
+                self.reinitialize_domain()
                 state = self.domain.observe()
-                print('end')
+                print('End')
 
-            action = policy(state)
-            self.actions_taken += 1
+            action = self.policy(state)
             next_state, reward, is_terminate = self.domain.step(action)
 
+            self.actions_taken += 1
+            action_number += 1
+
             if reward == 3:
-                print('hit')
+                print('Hit')
             elif reward == -1:
-                print('miss')
+                print('Miss')
 
             one_step_transition = (state, action, reward, next_state)
             self.buffer.add_sample(one_step_transition)
 
             self.train()
 
-            if self.target_network_update != -1 and self.actions_taken % self.target_network_update == 0:
+            if self.actions_taken % self.target_network_update == 0:
                 self.target_Q.copy(self.Q)
-
-            state = next_state
-            if (action_number * 100 % iteration_number) == 0:
+            if (action_number * 10 % iteration_number) == 0:
                 print(action_number * 100 // iteration_number, '%')
+            state = next_state
 
-    def train(self, epoch=1, mini_batch=30):
+    def train(self, epoch=1, mini_batch=25):
         dataset = self.buffer.get_sample(mini_batch)
 
         train_x = []
@@ -80,7 +77,9 @@ class DQNAgent(Agent):
 
     def get_greedy_policy(self):
         result = GreedyPolicy(self.Q, self.maximizer, self.epsilon)
+
         self.epsilon -= self.decrease_rate
         if self.epsilon < 0.01:
             self.epsilon = 0.01
+
         return result

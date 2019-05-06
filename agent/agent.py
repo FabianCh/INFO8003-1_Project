@@ -1,17 +1,22 @@
 from catcher import ContinuousCatcher
+from policy.random_policy import RandomPolicy
+from maximizer.static_sampler import StaticSampler
+from buffer.random_buffer import RandomBuffer
 
 import imageio
 import numpy
 
 
 class Agent:
-    def __init__(self, buffer, estimator, maximizer):
+    def __init__(self, estimator, buffer=RandomBuffer(), maximizer=StaticSampler(3), policy=RandomPolicy()):
         self.domain = ContinuousCatcher()
         self.gamma = self.domain.gamma()
 
-        self.buffer = buffer
         self.estimator = estimator
+        self.buffer = buffer
         self.maximizer = maximizer
+
+        self.policy = policy
 
     def reinitialize_buffer(self):
         """
@@ -19,41 +24,54 @@ class Agent:
         """
         self.buffer.reset()
 
-    def play(self, policy, verbose=True, return_hits=False):
+    def reinitialize_domain(self):
+        """
+            Reinitialize the domain
+        """
+        self.domain.reset()
+
+    def set_policy(self, policy):
+        """
+            Set the policy of the agent
+        """
+        self.policy = policy
+
+    def play(self, return_hits=False, verbose=True):
         """
             Play a game of catcher
         """
+
         if verbose:
             print("Game started")
-        self.domain.reset()
-        state = self.domain.observe()
 
-        hits = 0
 
-        is_terminate = False
-        number_of_action = 0
-        cumulated_reward = 0
+        domain = ContinuousCatcher()
+        state, is_terminate = domain.observe(), False
+        cumulated_reward, hits = 0, 0
+
         while not is_terminate:
-            action = policy(state)
-            state, reward, is_terminate = self.domain.step(action)
-            number_of_action += 1
+            action = self.policy(state)
+            state, reward, is_terminate = domain.step(action)
+
             cumulated_reward += reward
             if reward == 3:
                 hits += 1
                 if verbose:
                     print("    Hit : " + str(state))
+
         if verbose:
             print("Game ended :")
-            print("  number of action = ", number_of_action)
-            print("  cumulated reward = ", cumulated_reward)
+            print("  Hits = ", hits)
+            print("  Cumulated reward = ", cumulated_reward)
 
         if return_hits:
-            return cumulated_reward, number_of_action, hits
-        return cumulated_reward, number_of_action
+            return cumulated_reward, hits
+        return cumulated_reward
 
-    def show(self, policy, animation_title=None):
+    def show(self, animation_title=None, verbose=False):
         if animation_title is None:
             animation_title = "animation"
+
         window_width, window_height = self.domain.width, self.domain.height
         bar_width, bar_height = self.domain.bar.size
         size_fruit = self.domain.fruit.size[0]
@@ -71,51 +89,58 @@ class Agent:
             if 0 < y < window_height - size_fruit:
                 image[y: y + size_fruit, x: x + size_fruit] = numpy.full((size_fruit, size_fruit), 1)
 
-        print("Game started")
-        self.domain.reset()
-        state = self.domain.observe()
-        is_terminate = False
-        number_of_action, cumulated_reward = 0, 0
+        if verbose:
+            print("Game started")
 
-        with imageio.get_writer("/output/animation/" + animation_title + ".gif", mode='I', fps=10) as writer:
+        domain = ContinuousCatcher()
+        state, is_terminate = domain.observe(), False
+        cumulated_reward, hits = 0, 0
+
+        with imageio.get_writer(animation_title + ".gif", mode='I', fps=10) as writer:
             while not is_terminate:
-                action = policy(state)
-                state, reward, is_terminate = self.domain.step(action)
-                number_of_action += 1
+                action = self.policy(state)
+                state, reward, is_terminate = domain.step(action)
+
                 cumulated_reward += reward
                 if reward == 3:
-                    print("    Hit : " + str(state))
+                    hits += 1
+                    if verbose:
+                        print("    Hit : " + str(state))
+                try:
+                    img = numpy.zeros((window_height, window_width))
+                    draw_bar(img, state[0])
+                    draw_fruit(img, state[2], state[3])
+                    writer.append_data(img)
+                except:
+                    pass
+        if verbose:
+            print("Game ended :")
+            print("  Hits = ", hits)
+            print("  Cumulated reward = ", cumulated_reward)
 
-                img = numpy.zeros((window_height, window_width))
-                draw_bar(img, state[0])
-                draw_fruit(img, state[2], state[3])
-                writer.append_data(img)
-
-        print("Game ended :")
-        print("  number of action = ", number_of_action)
-        print("  cumulated reward = ", cumulated_reward)
-        return cumulated_reward, number_of_action
-
-    def generate_one_step_transition(self, policy, n=None):
+    def generate_one_step_transition(self, n=None):
         """
             Complete the buffer with n one step transition with the given policy
             If no n is given add a game to the buffer
         """
+
         self.domain.reset()
         initial_state, is_terminate = self.domain.observe(), False
         action_number = 0
+
         if n is None:
             def test(terminated, n, action_number):
                 return not terminated
         else:
             def test(terminated, n, action_number):
                 return action_number < n
+
         while test(is_terminate, n, action_number):
             if is_terminate:
                 self.domain.reset()
                 initial_state = self.domain.observe()
 
-            action = policy(initial_state)
+            action = self.policy(initial_state)
             final_state, reward, is_terminate = self.domain.step(action)
 
             one_step_transition = (initial_state, action, reward, final_state)
@@ -124,34 +149,48 @@ class Agent:
             initial_state = final_state
             action_number += 1
 
-    def expected_return(self, policy, n=100):
+    def expected_return(self, policy, n=100, verbose=False):
         """
             Return the expected value with a policy in a domain
         """
         cumulated_reward = 0
+        if verbose:
+            print("Expected return started")
         for _ in range(n):
-            cumulated_reward += self.play(policy, verbose=False)[0]
+            cumulated_reward += self.play(verbose=False)[0]
 
-        res = cumulated_reward / n
-        print("\n Extected return : " + str(res))
-        return res
+        mean_reward = cumulated_reward / n
 
-    def expected_return_and_hit(self, policy, n=100):
+        if verbose:
+            print("Extected return : " + str(mean_reward))
+
+        return mean_reward
+
+    def expected_return_and_hit(self, n=100, verbose=False):
         """
             Return the expected value with a policy in a domain
         """
-        cumulated_reward = 0
-        cumulated_hits = 0
+        cumulated_reward, cumulated_hits = 0, 0
+
+        if verbose:
+            print("Expected return started")
+
         for _ in range(n):
-            reward, _, hits = self.play(policy, verbose=False, return_hits=True)
+            reward, hits = self.play(return_hits=True, verbose=False)
             cumulated_reward += reward
             cumulated_hits += hits
 
-        res = cumulated_reward / n
+        mean_reward = cumulated_reward / n
         mean_hits = cumulated_hits / n
-        print("\n Extected return : " + str(res))
-        print("\n Extected hits : " + str(mean_hits))
-        return res, mean_hits
+
+        if verbose:
+            print("\n Extected return : " + str(mean_reward))
+            print("\n Extected hits : " + str(mean_hits))
+
+        return mean_reward, mean_hits
+
+    def play_and_train(self):
+        pass
 
     def train(self, depth=None, dataset_size=None):
         pass
@@ -159,3 +198,5 @@ class Agent:
     def get_optimal_policy(self):
         pass
 
+    def get_greedy_policy(self):
+        pass
