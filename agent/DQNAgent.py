@@ -5,9 +5,8 @@ from estimator.neural_network import NeuralNetworkEstimator
 
 
 class DQNAgent(Agent):
-
-    def __init__(self, buffer, maximazer):
-        super(DQNAgent, self).__init__(buffer, NeuralNetworkEstimator, maximazer)
+    def __init__(self, buffer, maximizer):
+        super(DQNAgent, self).__init__(buffer, NeuralNetworkEstimator, maximizer)
 
         self.Q = self.estimator()
         self.target_Q = self.estimator()
@@ -17,7 +16,10 @@ class DQNAgent(Agent):
     def PlayDQN(self, T):
         self.domain.reset()
         policy = RandomPolicy()
-        self.generate_one_step_transition(policy)
+        # self.generate_one_step_transition(policy, 5000)
+        # self.train(1, 1000)
+
+        self.target_Q.copy(self.Q)
 
         state, is_terminate = self.domain.observe(), False
 
@@ -32,6 +34,8 @@ class DQNAgent(Agent):
             next_state, reward, is_terminate = self.domain.step(action)
             if reward == 3:
                 print('hit')
+            elif reward == -1:
+                print('miss')
 
             one_step_transition = (state, action, reward, next_state)
             self.buffer.add_sample(one_step_transition)
@@ -42,11 +46,12 @@ class DQNAgent(Agent):
 
             if t % 10000 == 0:
                 self.target_Q.copy(self.Q)
+                print('target updated')
 
             state = next_state
             t += 1
-            if t % 10000 == 0:
-                print(t/1000, '%')
+            if t % 100 == 0:
+                print(t/10000, '%')
 
     def train(self, depth=1, mini_batch=30):
         list_ost = self.buffer.get_sample(mini_batch)

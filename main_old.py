@@ -4,8 +4,8 @@ from buffer.ordered_buffer import OrderedBuffer
 from buffer.priority_buffer import PriorityBuffer
 from buffer.random_buffer import RandomBuffer
 from estimator.randomize_tree_estimator import ExtremelyRandomizeTreeEstimator
-from max_finder.uniform_sampler import UniformSampler
-from max_finder.static_sampler import StaticSampler
+from maximizer.uniform_sampler import UniformSampler
+from maximizer.static_sampler import StaticSampler
 from policy.random_policy import RandomPolicy
 from policy.static_policy import StaticPolicy
 
@@ -31,9 +31,9 @@ from policy.static_policy import StaticPolicy
 # agent.show(optimal_policy)
 #
 #
-from agent.DDQNAgent import DDQNAgent
+from agent.DQNAgent import DQNAgent
 
-agent = DDQNAgent(PriorityBuffer(), UniformSampler(5))
+agent = DQNAgent(PriorityBuffer(), UniformSampler(5))
 agent.PlayDQN(1000000)
 agent.expected_return(agent.get_optimal_policy(), 1000)
 agent.show(agent.get_optimal_policy())

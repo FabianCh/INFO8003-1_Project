@@ -20,7 +20,7 @@ class NeuralNetworkEstimator:
 
         train_in = np.array(train_in)
         train_out = np.array(train_out)
-        self.model.fit(train_in, train_out, batch_size=len(train_in), verbose=0)
+        self.model.fit(train_in, train_out, verbose=0)
 
     def copy(self, neural_network):
         self.model.set_weights(neural_network.model.get_weights())

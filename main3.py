@@ -1,6 +1,6 @@
 from agent.DDQNAgent import DDQNAgent
 from buffer.priority_buffer import PriorityBuffer
-from max_finder.balanced_uniform_sampler import BalancedUniformSampler
+from maximizer.balanced_uniform_sampler import BalancedUniformSampler
 
 agent = DDQNAgent(PriorityBuffer(), BalancedUniformSampler(5))
 agent.play_and_train(300000)
