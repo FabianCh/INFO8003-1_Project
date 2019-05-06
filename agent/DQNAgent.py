@@ -26,7 +26,6 @@ class DQNAgent(Agent):
         self.actions_taken = 0
 
     def play_and_train(self, iteration_number=1000):
-
         state, is_terminate = self.domain.observe(), False
 
         action_number = 1
