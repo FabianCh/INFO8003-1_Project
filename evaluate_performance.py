@@ -1,5 +1,7 @@
 import configparser
 from agent.fitted_q_iteration import FittedQIteration
+from agent.DQNAgent import DQNAgent
+from agent.DDQNAgent import DDQNAgent
 from buffer.ordered_buffer import OrderedBuffer
 from buffer.random_buffer import RandomBuffer
 from buffer.priority_buffer import PriorityBuffer
@@ -13,17 +15,18 @@ from policy.random_policy import RandomPolicy
 from policy.greedy_policy import GreedyPolicy
 import csv
 
+# region Parameter Initialisation
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-# region Parameter Initialisation
+
 BufferType = config['Agent']['Buffer']
 if BufferType == 'Ordered':
-    buffer = OrderedBuffer()
+    Buffer = OrderedBuffer()
 elif BufferType == 'Random':
-    buffer = RandomBuffer()
+    Buffer = RandomBuffer()
 elif BufferType == 'Prioritized':
-    buffer = PriorityBuffer()
+    Buffer = PriorityBuffer()
 else:
     raise ValueError('Buffer strategy unknown')
 
@@ -61,8 +64,19 @@ Depth = int(config['Train']['Depth'])
 DatasetSize = int(config['Train']['DatasetSize'])
 # endregion
 
-agent = FittedQIteration(buffer, Estimator, Maximizer)
+# region Agent Initialisation
+Agent = config['Agent']['Agent']
+if Agent == 'FittedQIteration':
+    agent = FittedQIteration(Buffer, Estimator, Maximizer)
+elif Agent == 'DQNAgent':
+    agent = DQNAgent(Buffer, Maximizer)
+elif Agent == 'DDQNAgent':
+    agent = DDQNAgent(Buffer, Maximizer)
+else:
+    raise ValueError('Agent unknown')
+# endregion
 
+# region Evaluation Core
 random_policy = RandomPolicy()
 print('Generating buffer...')
 agent.generate_one_step_transition(random_policy, NumberOfOST)
@@ -82,6 +96,7 @@ for _ in range(100):
     policy = GreedyPolicy(agent.Qn[-1], Maximizer, 0.1)
     Expected_return_table.append(agent.expected_return(policy))
 
+# endregion
 
 # region Log creation
 filename = 'output/log/log_'
@@ -96,3 +111,4 @@ with open(filename, 'a', newline='') as csv_file:
     csv_writer = csv.writer(csv_file, delimiter=',')
     csv_writer.writerow(Expected_return_table)
 # endregion
+

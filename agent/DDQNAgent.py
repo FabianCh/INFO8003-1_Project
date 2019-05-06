@@ -15,12 +15,14 @@ class DDQNAgent(Agent):
         self.target_Q.copy(self.Q)
 
         self.epsilon = 1
-        self.decrease_rate=decrease_rate
+        self.decrease_rate = decrease_rate
 
     def play_and_train(self, iteration_number=100000, initial_buffer_size=50000, target_network_update=10000, reset=True):
         assert iteration_number > 0, "action number must be a positive integer"
         assert initial_buffer_size > 0, "action number must be a positive integer"
         assert target_network_update > 0 or target_network_update == -1, "action number must be a positive integer"
+
+        policy = self.get_greedy_policy()
 
         if reset:
             self.domain.reset()
@@ -49,7 +51,6 @@ class DDQNAgent(Agent):
             self.buffer.add_sample(one_step_transition)
 
             self.train()
-            policy = self.get_greedy_policy()
 
             if target_network_update != -1 and action_number % target_network_update == 0:
                 self.target_Q.copy(self.Q)
@@ -59,7 +60,7 @@ class DDQNAgent(Agent):
             if (action_number * 100 % iteration_number) == 0:
                 print(action_number * 100 // iteration_number, '%')
 
-    def train(self, epoch = 1, mini_batch=30):
+    def train(self, epoch=1, mini_batch=30):
         dataset = self.buffer.get_sample(mini_batch)
 
         train_x = []
