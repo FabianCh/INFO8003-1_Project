@@ -34,6 +34,6 @@ from policy.static_policy import StaticPolicy
 from agent.DQNAgent import DQNAgent
 
 agent = DQNAgent(PriorityBuffer(), UniformSampler(5))
-agent.PlayDQN(1000000)
-agent.expected_return(agent.get_optimal_policy(), 1000)
+agent.PlayDQN(10)
+agent.expected_return(agent.get_optimal_policy(), 10)
 agent.show(agent.get_optimal_policy())
