@@ -88,7 +88,7 @@ filename + '.csv'
 # region Evaluation Core
 random_policy = RandomPolicy()
 print('Generating buffer...')
-agent.generate_one_step_transition(random_policy, )
+agent.generate_one_step_transition(random_policy, InitialBufferSize)
 print('Buffer generated\n')
 
 
