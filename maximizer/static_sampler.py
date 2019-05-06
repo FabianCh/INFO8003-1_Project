@@ -2,7 +2,7 @@ import numpy as np
 
 
 class StaticSampler:
-    def __init__(self, samples_number, arg_max):
+    def __init__(self, samples_number, arg_max=1.3):
         self.sample_number = samples_number
         self.arg_max = arg_max
         self.samples = np.linspace(-self.arg_max, self.arg_max, self.sample_number)
