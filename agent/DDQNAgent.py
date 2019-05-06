@@ -80,5 +80,7 @@ class DDQNAgent(Agent):
     def get_greedy_policy(self):
         result = GreedyPolicy(self.Q, self.maximizer, self.epsilon)
         self.epsilon -= self.decrease_rate
+        if self.epsilon < 0:
+            self.epsilon = 0
         return result
 
