@@ -6,7 +6,7 @@ from buffer.priority_buffer import PriorityBuffer
 from estimator.linear_regressor_estimator import LinearRegressorEstimator
 from estimator.randomize_tree_estimator import ExtremelyRandomizeTreeEstimator
 from estimator.neural_network import NeuralNetworkEstimator
-from max_finder.uniform_sampler import UniformSampler
+from maximizer.uniform_sampler import UniformSampler
 from policy.random_policy import RandomPolicy
 from policy.greedy_policy import GreedyPolicy
 import csv
