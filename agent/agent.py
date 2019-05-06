@@ -48,7 +48,7 @@ class Agent:
             print("  cumulated reward = ", cumulated_reward)
 
         if return_hits:
-            return hits
+            return cumulated_reward, number_of_action, hits
         return cumulated_reward, number_of_action
 
     def show(self, policy, animation_title=None):
@@ -135,6 +135,23 @@ class Agent:
         res = cumulated_reward / n
         print("\n Extected return : " + str(res))
         return res
+
+    def expected_return_and_hit(self, policy, n=100):
+        """
+            Return the expected value with a policy in a domain
+        """
+        cumulated_reward = 0
+        cumulated_hits = 0
+        for _ in range(n):
+            reward, _, hits = self.play(policy, verbose=False, return_hits=True)
+            cumulated_reward += reward
+            cumulated_hits += hits
+
+        res = cumulated_reward / n
+        mean_hits = cumulated_hits / n
+        print("\n Extected return : " + str(res))
+        print("\n Extected hits : " + str(mean_hits))
+        return res, mean_hits
 
     def train(self, depth=None, dataset_size=None):
         pass

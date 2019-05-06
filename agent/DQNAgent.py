@@ -20,7 +20,7 @@ class DQNAgent(Agent):
     def play_and_train(self, iteration_number=100000, initial_buffer_size=50000,
                        target_network_update=10000, reset=True):
         assert iteration_number > 0, "action number must be a positive integer"
-        assert initial_buffer_size > 0, "action number must be a positive integer"
+        assert initial_buffer_size >= 0, "action number must be a positive integer"
         assert target_network_update > 0 or target_network_update == -1, "action number must be a positive integer"
 
         policy = self.get_greedy_policy()

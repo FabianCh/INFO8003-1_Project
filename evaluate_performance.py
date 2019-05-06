@@ -76,29 +76,30 @@ else:
     raise ValueError('Agent unknown')
 # endregion
 
+# region logfile name
+filename = 'output/log/log_'
+for part in ['Train', 'Agent', MaximizerType]:
+    filename += part + '--'
+    for param in config[part]:
+        filename += param + '_' + config[part][param] + '-'
+filename + '.csv'
+# endregion
+
 # region Evaluation Core
 random_policy = RandomPolicy()
 print('Generating buffer...')
 agent.generate_one_step_transition(random_policy, NumberOfOST)
 print('Buffer generated\n')
 
-for _ in range(100):
-    agent.play_and_train(iteration_number=1000, target_network_update=1000)
-    # TODO
+
+agent.play_and_train(iteration_number=1000, initial_buffer_size=0, target_network_update=10000, reset=False)
+for _ in range(1):
+    agent.play_and_train(iteration_number=1000,initial_buffer_size=0, target_network_update=10000, reset=False)
+    policy = agent.get_greedy_policy()
+    expected_reward, mean_hits = agent.expected_return_and_hit(policy)
+    with open(filename, 'a', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file, delimiter=',')
+        csv_writer.writerow(expected_reward, mean_hits)
 
 
-# endregion
-
-# region Log creation
-filename = 'output/log/log_'
-for part in config:
-    if part != 'DEFAULT':
-        filename += part + '--'
-    for param in config[part]:
-        filename += param + '_' + config[part][param] + '-'
-filename + '.csv'
-
-with open(filename, 'a', newline='') as csv_file:
-    csv_writer = csv.writer(csv_file, delimiter=',')
-    csv_writer.writerow(Expected_return_table)
 # endregion

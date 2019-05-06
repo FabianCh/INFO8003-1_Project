@@ -1,5 +1,4 @@
 from agent.fitted_q_iteration import FittedQIteration
-from agent.parametric_q_iteration import ParamtricQIteratoin
 from buffer.ordered_buffer import OrderedBuffer
 from buffer.priority_buffer import PriorityBuffer
 from buffer.random_buffer import RandomBuffer
