@@ -7,7 +7,7 @@ from estimator.neural_network import NeuralNetworkEstimator
 
 class DQNAgent(Agent):
 
-    def __init__(self, buffer, maximizer, decrease_rate=0.000001):
+    def __init__(self, buffer, maximizer, decrease_rate=0.000001, target_network_update=10000):
         super(DQNAgent, self).__init__(buffer, NeuralNetworkEstimator, maximizer)
 
         self.Q = self.estimator()
@@ -17,19 +17,19 @@ class DQNAgent(Agent):
         self.epsilon = 1
         self.decrease_rate = decrease_rate
 
-    def play_and_train(self, iteration_number=100000, initial_buffer_size=50000,
-                       target_network_update=10000, reset=True):
-        assert iteration_number > 0, "action number must be a positive integer"
-        assert initial_buffer_size >= 0, "action number must be a positive integer"
-        assert target_network_update > 0 or target_network_update == -1, "action number must be a positive integer"
+        self.target_network_update = target_network_update
+        self.actions_taken = 0
+
+    def reinitialize_actions(self):
+        self.actions_taken = 0
+
+    def play_and_train(self, iteration_number=100000, reset=True):
 
         policy = self.get_greedy_policy()
 
         if reset:
             self.domain.reset()
-            self.buffer.clear()
             policy = RandomPolicy()
-            self.generate_one_step_transition(policy, initial_buffer_size)
 
         state, is_terminate = self.domain.observe(), False
 
@@ -53,7 +53,7 @@ class DQNAgent(Agent):
 
             self.train()
 
-            if target_network_update != -1 and action_number % target_network_update == 0:
+            if self.target_network_update != -1 and action_number % target_network_update == 0:
                 self.target_Q.copy(self.Q)
 
             state = next_state
@@ -81,6 +81,6 @@ class DQNAgent(Agent):
     def get_greedy_policy(self):
         result = GreedyPolicy(self.Q, self.maximizer, self.epsilon)
         self.epsilon -= self.decrease_rate
-        if self.epsilon < 0:
-            self.epsilon = 0
+        if self.epsilon < 0.01:
+            self.epsilon = 0.01
         return result
