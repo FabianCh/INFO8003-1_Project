@@ -17,14 +17,16 @@ class DDQNAgent(Agent):
         self.epsilon = 1
         self.decrease_rate=decrease_rate
 
-    def play_and_train(self, iteration_number=100000, initial_buffer_size=50000, target_network_update=10000):
+    def play_and_train(self, iteration_number=100000, initial_buffer_size=50000, target_network_update=10000, reset=True):
         assert iteration_number > 0, "action number must be a positive integer"
         assert initial_buffer_size > 0, "action number must be a positive integer"
         assert target_network_update > 0 or target_network_update == -1, "action number must be a positive integer"
 
-        self.domain.reset()
-        policy = RandomPolicy()
-        self.generate_one_step_transition(policy, initial_buffer_size)
+        if reset:
+            self.domain.reset()
+            self.buffer.clear()
+            policy = RandomPolicy()
+            self.generate_one_step_transition(policy, initial_buffer_size)
 
         state, is_terminate = self.domain.observe(), False
 
@@ -58,12 +60,12 @@ class DDQNAgent(Agent):
                 print(action_number * 100 // iteration_number, '%')
 
     def train(self, epoch = 1, mini_batch=30):
-        list_ost = self.buffer.get_sample(mini_batch)
+        dataset = self.buffer.get_sample(mini_batch)
 
         train_x = []
         train_y = []
 
-        for state, action, reward, next_state in list_ost:
+        for state, action, reward, next_state in dataset:
             x = [state[0], state[1], state[2], state[3], action[0], action[1]]
             x_prime = [next_state[0], next_state[1], next_state[2], next_state[3]]
             y = reward + \
@@ -79,5 +81,4 @@ class DDQNAgent(Agent):
         result = GreedyPolicy(self.Q, self.maximizer, self.epsilon)
         self.epsilon -= self.decrease_rate
         return result
-
 

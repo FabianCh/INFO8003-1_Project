@@ -77,7 +77,7 @@ class Agent:
         is_terminate = False
         number_of_action, cumulated_reward = 0, 0
 
-        with imageio.get_writer('output/animation/' + animation_title + ".gif",  mode='I', fps=10) as writer:
+        with imageio.get_writer("/output/animation/" + animation_title + ".gif", mode='I', fps=10) as writer:
             while not is_terminate:
                 action = policy(state)
                 state, reward, is_terminate = self.domain.step(action)

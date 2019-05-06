@@ -1,6 +1,6 @@
 from agent.DDQNAgent import DDQNAgent
 from buffer.random_buffer import RandomBuffer
-from max_finder.uniform_sampler import UniformSampler
+from maximizer.uniform_sampler import UniformSampler
 
 agent = DDQNAgent(RandomBuffer(), UniformSampler(5))
 agent.play_and_train(300000)
