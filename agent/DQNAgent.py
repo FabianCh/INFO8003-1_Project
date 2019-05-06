@@ -5,19 +5,20 @@ from policy.function_policy import FunctionPolicy
 from estimator.neural_network import NeuralNetworkEstimator
 
 
-class DDQNAgent(Agent):
+class DQNAgent(Agent):
 
     def __init__(self, buffer, maximizer, decrease_rate=0.000001):
-        super(DDQNAgent, self).__init__(buffer, NeuralNetworkEstimator, maximizer)
+        super(DQNAgent, self).__init__(buffer, NeuralNetworkEstimator, maximizer)
 
         self.Q = self.estimator()
         self.target_Q = self.estimator()
         self.target_Q.copy(self.Q)
 
         self.epsilon = 1
-        self.decrease_rate=decrease_rate
+        self.decrease_rate = decrease_rate
 
-    def play_and_train(self, iteration_number=100000, initial_buffer_size=50000, target_network_update=10000, reset=True):
+    def play_and_train(self, iteration_number=100000, initial_buffer_size=50000,
+                       target_network_update=10000, reset=True):
         assert iteration_number > 0, "action number must be a positive integer"
         assert initial_buffer_size > 0, "action number must be a positive integer"
         assert target_network_update > 0 or target_network_update == -1, "action number must be a positive integer"
@@ -83,4 +84,3 @@ class DDQNAgent(Agent):
         if self.epsilon < 0:
             self.epsilon = 0
         return result
-
