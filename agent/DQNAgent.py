@@ -41,6 +41,7 @@ class DQNAgent(Agent):
                 print('end')
 
             action = policy(state)
+            self.actions_taken += 1
             next_state, reward, is_terminate = self.domain.step(action)
 
             if reward == 3:
@@ -53,11 +54,10 @@ class DQNAgent(Agent):
 
             self.train()
 
-            if self.target_network_update != -1 and action_number % target_network_update == 0:
+            if self.target_network_update != -1 and self.actions_taken % self.target_network_update == 0:
                 self.target_Q.copy(self.Q)
 
             state = next_state
-            action_number += 1
             if (action_number * 100 % iteration_number) == 0:
                 print(action_number * 100 // iteration_number, '%')
 

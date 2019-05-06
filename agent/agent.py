@@ -5,8 +5,7 @@ import numpy
 
 
 class Agent:
-
-    def __init__(self, buffer, estimator, maximizer, policy):
+    def __init__(self, buffer, estimator, maximizer):
         self.domain = ContinuousCatcher()
         self.gamma = self.domain.gamma()
 
@@ -14,18 +13,13 @@ class Agent:
         self.estimator = estimator
         self.maximizer = maximizer
 
-        self.policy = policy
-
     def reinitialize_buffer(self):
         """
             Reinitialize the buffer
         """
         self.buffer.reset()
 
-    def set_policy(self, policy):
-        self.policy = policy
-
-    def play(self, verbose=True):
+    def play(self, policy, verbose=True, return_hits=False):
         """
             Play a game of catcher
         """
@@ -34,14 +28,15 @@ class Agent:
         self.domain.reset()
         state = self.domain.observe()
 
-
+        hits = 0
 
         is_terminate = False
-        cumulated_reward, hits = 0, 0
-
+        number_of_action = 0
+        cumulated_reward = 0
         while not is_terminate:
-            action = self.policy(state)
+            action = policy(state)
             state, reward, is_terminate = self.domain.step(action)
+            number_of_action += 1
             cumulated_reward += reward
             if reward == 3:
                 hits += 1
@@ -49,10 +44,12 @@ class Agent:
                     print("    Hit : " + str(state))
         if verbose:
             print("Game ended :")
-            print("  Cumulated reward = ", cumulated_reward)
-            print("  Hits number = ", hits)
+            print("  number of action = ", number_of_action)
+            print("  cumulated reward = ", cumulated_reward)
 
-        return cumulated_reward, hits
+        if return_hits:
+            return cumulated_reward, number_of_action, hits
+        return cumulated_reward, number_of_action
 
     def show(self, policy, animation_title=None):
         if animation_title is None:
@@ -99,16 +96,14 @@ class Agent:
         print("  cumulated reward = ", cumulated_reward)
         return cumulated_reward, number_of_action
 
-    def generate_one_step_transition(self, n=None):
+    def generate_one_step_transition(self, policy, n=None):
         """
             Complete the buffer with n one step transition with the given policy
             If no n is given add a game to the buffer
         """
         self.domain.reset()
         initial_state, is_terminate = self.domain.observe(), False
-
         action_number = 0
-
         if n is None:
             def test(terminated, n, action_number):
                 return not terminated
@@ -120,7 +115,7 @@ class Agent:
                 self.domain.reset()
                 initial_state = self.domain.observe()
 
-            action = self.policy(initial_state)
+            action = policy(initial_state)
             final_state, reward, is_terminate = self.domain.step(action)
 
             one_step_transition = (initial_state, action, reward, final_state)
@@ -129,26 +124,26 @@ class Agent:
             initial_state = final_state
             action_number += 1
 
-    def expected_return(self, n=100):
+    def expected_return(self, policy, n=100):
         """
             Return the expected value with a policy in a domain
         """
         cumulated_reward = 0
         for _ in range(n):
-            cumulated_reward += self.play(verbose=False)[0]
+            cumulated_reward += self.play(policy, verbose=False)[0]
 
         res = cumulated_reward / n
         print("\n Extected return : " + str(res))
         return res
 
-    def expected_return_and_hit(self, n=100):
+    def expected_return_and_hit(self, policy, n=100):
         """
             Return the expected value with a policy in a domain
         """
         cumulated_reward = 0
         cumulated_hits = 0
         for _ in range(n):
-            reward, hits = self.play(verbose=False)
+            reward, _, hits = self.play(policy, verbose=False, return_hits=True)
             cumulated_reward += reward
             cumulated_hits += hits
 
@@ -157,9 +152,6 @@ class Agent:
         print("\n Extected return : " + str(res))
         print("\n Extected hits : " + str(mean_hits))
         return res, mean_hits
-
-    # def play_and_train(self):
-    #     pass
 
     def train(self, depth=None, dataset_size=None):
         pass
