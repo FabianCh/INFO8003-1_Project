@@ -6,7 +6,9 @@ from buffer.priority_buffer import PriorityBuffer
 from estimator.linear_regressor_estimator import LinearRegressorEstimator
 from estimator.randomize_tree_estimator import ExtremelyRandomizeTreeEstimator
 from estimator.neural_network import NeuralNetworkEstimator
+from maximizer.static_sampler import StaticSampler
 from maximizer.uniform_sampler import UniformSampler
+from maximizer.balanced_uniform_sampler import BalancedUniformSampler
 from policy.random_policy import RandomPolicy
 from policy.greedy_policy import GreedyPolicy
 import csv
@@ -36,9 +38,16 @@ else:
     raise ValueError('Estimator unknown')
 
 MaximizerType = config['Agent']['Maximizer']
-if MaximizerType == 'UniformSampling':
+
+if MaximizerType == 'StaticSampler':
+    NumberOfSample = int(config['StaticSampler']['NumberOfSample'])
+    Maximizer = StaticSampler(NumberOfSample, 1.3)
+elif MaximizerType == 'UniformSampling':
     NumberOfSample = int(config['UniformSampling']['NumberOfSample'])
     Maximizer = UniformSampler(NumberOfSample, 1.3)
+elif MaximizerType == 'UniformSampling':
+    NumberOfSample = int(config['BalancedUniformSampler']['NumberOfSample'])
+    Maximizer = BalancedUniformSampler(NumberOfSample, 1.3)
 else:
     raise ValueError('Maximizer unknown')
 
