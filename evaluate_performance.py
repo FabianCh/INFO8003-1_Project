@@ -53,14 +53,15 @@ elif MaximizerType == 'UniformSampling':
 else:
     raise ValueError('Maximizer unknown')
 
-NumberOfOST = config['Train']['NumberOfOST']
-if NumberOfOST == 'None':
-    NumberOfOST = None
+InitialBufferSize = config['Train']['InitialBufferSize']
+if InitialBufferSize == 'None':
+    InitialBufferSize = None
 else:
-    NumberOfOST = int(NumberOfOST)
+    InitialBufferSize = int(InitialBufferSize)
 
 Episode = int(config['Train']['Episode'])
 MiniBatchSize = int(config['Train']['MiniBatchSize'])
+TargetUpdate = int(config['Train']['TargetUpdate'])
 # endregion
 
 # region Agent Initialisation
@@ -68,9 +69,9 @@ Agent = config['Agent']['Agent']
 if Agent == 'FittedQIteration':
     agent = FittedQIteration(Buffer, Estimator, Maximizer)
 elif Agent == 'DQNAgent':
-    agent = DQNAgent(Buffer, Maximizer)
+    agent = DQNAgent(Buffer, Maximizer, TargetUpdate)
 elif Agent == 'DDQNAgent':
-    agent = DDQNAgent(Buffer, Maximizer)
+    agent = DDQNAgent(Buffer, Maximizer, TargetUpdate)
 else:
     raise ValueError('Agent unknown')
 # endregion
@@ -87,18 +88,17 @@ filename + '.csv'
 # region Evaluation Core
 random_policy = RandomPolicy()
 print('Generating buffer...')
-agent.generate_one_step_transition(random_policy, NumberOfOST)
+agent.generate_one_step_transition(random_policy, )
 print('Buffer generated\n')
 
 
-agent.play_and_train(iteration_number=1000, initial_buffer_size=0, target_network_update=10000, reset=False)
+agent.play_and_train(iteration_number=1000, reset=True)
 for _ in range(Episode):
-    agent.play_and_train(iteration_number=1000, initial_buffer_size=0, target_network_update=10000, reset=False)
+    agent.play_and_train(iteration_number=1000, reset=False)
     policy = agent.get_greedy_policy()
     expected_reward, mean_hits = agent.expected_return_and_hit(policy)
     with open(filename, 'a', newline='') as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=',')
         csv_writer.writerow(expected_reward, mean_hits)
-
 
 # endregion
