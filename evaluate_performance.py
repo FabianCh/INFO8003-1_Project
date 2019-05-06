@@ -82,19 +82,10 @@ print('Generating buffer...')
 agent.generate_one_step_transition(random_policy, NumberOfOST)
 print('Buffer generated\n')
 
-agent.train(Depth, DatasetSize)
-optimal_policy = agent.get_optimal_policy()
-
-Expected_return_table = list()
-Expected_return_table.append(agent.expected_return(optimal_policy))
-
-policy = optimal_policy
-
 for _ in range(100):
-    agent.generate_one_step_transition(policy)
-    agent.train(Depth, DatasetSize)
-    policy = GreedyPolicy(agent.Qn[-1], Maximizer, 0.1)
-    Expected_return_table.append(agent.expected_return(policy))
+    agent.play_and_train(iteration_number=1000, target_network_update=1000)
+    # TODO
+
 
 # endregion
 
@@ -111,4 +102,3 @@ with open(filename, 'a', newline='') as csv_file:
     csv_writer = csv.writer(csv_file, delimiter=',')
     csv_writer.writerow(Expected_return_table)
 # endregion
-
