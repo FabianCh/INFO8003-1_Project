@@ -18,7 +18,7 @@ import pickle
 
 
 config = configparser.ConfigParser()
-config.read('config1.ini')
+config.read('config4.ini')
 
 
 # region Buffer Initialisation
@@ -71,7 +71,7 @@ else:
 # region Episodes Config
 Episode = int(config['Train']['Episode'])
 Episode_Size = int(config['Train']['Episode_Size'])
-MiniBatchSize = int(config['Train']['MiniBatchSize'])
+
 TargetUpdate = int(config['Train']['TargetUpdate'])
 # endregion
 

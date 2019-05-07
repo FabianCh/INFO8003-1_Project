@@ -5,34 +5,13 @@ from buffer.random_buffer import RandomBuffer
 from estimator.randomize_tree_estimator import ExtremelyRandomizeTreeEstimator
 from maximizer.uniform_sampler import UniformSampler
 from maximizer.static_sampler import StaticSampler
+from maximizer.balanced_uniform_sampler import BalancedUniformSampler
 from policy.random_policy import RandomPolicy
 from policy.static_policy import StaticPolicy
 
-# static_policy = StaticPolicy((4, 0))
-# random_policy = RandomPolicy()
-#
-# uniform_sampler = UniformSampler(5, 1.3)
-# agent = FittedQIteration(RandomBuffer(), ExtremelyRandomizeTreeEstimator, uniform_sampler)
-#
-#
-# print('Generating buffer...')
-# agent.generate_one_step_transition(random_policy, 1000)
-# print('Buffer generated\n')
-#
-#
-# agent.train(200, 500)
-# optimal_policy = agent.get_optimal_policy()
-#
-# cumulated_reward, number_of_action = agent.play(optimal_policy)
-# print("Game over, cumulated reward =", cumulated_reward, "number of action =", number_of_action)
-#
-# print("Expected return : ", agent.expected_return(optimal_policy))
-# agent.show(optimal_policy)
-#
-#
-from agent.DQNAgent import DQNAgent
-
-agent = DQNAgent(PriorityBuffer(), UniformSampler(5))
-agent.PlayDQN(10)
-agent.expected_return(agent.get_optimal_policy(), 10)
-agent.show(agent.get_optimal_policy())
+import pickle
+with open('output/evaluation/Train--initialbuffersize_50000-episode_300-episode_size_1000-minibatchsize_30-decreaserate_0.00001-targetupdate_10000-Agent--agent_DDQNAgent-estimator_NeuralNetwork-buffer_Prioritized-maximizer_Uniform-Uniform--numberofsample_11-.pickle', 'rb') as file:
+    agent = pickle.load(file)
+    agent.set_policy(agent.get_optimal_policy())
+    agent.show(verbose=True)
+    agent.expected_return_and_hit(verbose=True)

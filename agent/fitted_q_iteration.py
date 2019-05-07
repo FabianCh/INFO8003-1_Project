@@ -1,13 +1,15 @@
 from agent.agent import Agent
 from policy.function_policy import FunctionPolicy
 from policy.greedy_policy import GreedyPolicy
+from policy.random_policy import RandomPolicy
 
 
 class FittedQIteration(Agent):
-    def __init__(self, buffer, estimator, maximizer):
+    def __init__(self, buffer, estimator, maximizer, decrease_rate=0.000001):
         super(FittedQIteration, self).__init__(buffer, estimator, maximizer)
         self.Qn = []
         self.epsilon = 1
+        self.decrease_rate = decrease_rate
 
     def play_and_train(self, iteration_number=1000):
         state, is_terminate = self.domain.observe(), False
@@ -35,7 +37,7 @@ class FittedQIteration(Agent):
             if (action_number * 10 % iteration_number) == 0:
                 print(action_number * 100 // iteration_number, '%')
 
-        self.train(100, 10 * iteration_number)
+        self.train(100, 10*iteration_number)
 
     def train(self, depth=100, dataset_size=100):
         if self.buffer.is_empty():
@@ -84,10 +86,12 @@ class FittedQIteration(Agent):
         return FunctionPolicy(self.Qn[-1], self.maximizer)
 
     def get_greedy_policy(self):
-            result = GreedyPolicy(self.Qn[-1], self.maximizer, self.epsilon)
+        if len(self.Qn) == 0:
+            return RandomPolicy()
+        result = GreedyPolicy(self.Qn[-1], self.maximizer, self.epsilon)
 
-            self.epsilon -= self.decrease_rate
-            if self.epsilon < 0.01:
-                self.epsilon = 0.01
+        self.epsilon -= self.decrease_rate
+        if self.epsilon < 0.01:
+            self.epsilon = 0.01
 
-            return result
+        return result

@@ -149,7 +149,7 @@ class Agent:
             initial_state = final_state
             action_number += 1
 
-    def expected_return(self, policy, n=100, verbose=False):
+    def expected_return(self, n=100, verbose=False):
         """
             Return the expected value with a policy in a domain
         """
@@ -157,7 +157,7 @@ class Agent:
         if verbose:
             print("Expected return started")
         for _ in range(n):
-            cumulated_reward += self.play(verbose=False)[0]
+            cumulated_reward += self.play(verbose=False)
 
         mean_reward = cumulated_reward / n
 
