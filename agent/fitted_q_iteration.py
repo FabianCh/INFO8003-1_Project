@@ -35,7 +35,7 @@ class FittedQIteration(Agent):
             if (action_number * 10 % iteration_number) == 0:
                 print(action_number * 100 // iteration_number, '%')
 
-        self.train(100, 25000)
+        self.train(100, 10 * iteration_number)
 
     def train(self, depth=100, dataset_size=100):
         if self.buffer.is_empty():

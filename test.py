@@ -107,20 +107,25 @@ agent.set_policy(agent.get_greedy_policy())
 
 with open(prefix2 + prefix + "_log.csv", 'w', newline='\n') as log_file:
     csv_writer = csv.writer(log_file, delimiter=';')
-    for i in range(Episode):
-        print("\nEpisode " + str(i))
 
-        agent.play_and_train(iteration_number=Episode_Size)
+for i in range(Episode):
+    print("\nEpisode " + str(i))
 
-        agent.set_policy(agent.get_optimal_policy())
-        expected_reward, mean_hits = agent.expected_return_and_hit()
-        csv_writer.writerow([expected_reward, mean_hits])
-        agent.set_policy(agent.get_greedy_policy())
-        print("\nExpected return Estimated")
+    agent.play_and_train(iteration_number=Episode_Size)
 
-        with open(prefix2 + prefix + '.pickle', 'wb') as agent_file:
-            pickle.dump(agent, agent_file, pickle.HIGHEST_PROTOCOL)
-            print("Agent saved")
+    agent.set_policy(agent.get_optimal_policy())
+    expected_reward, mean_hits = agent.expected_return_and_hit()
+    print("Expected return : " + str((expected_reward, mean_hits)))
+    with open(prefix2 + prefix + "_log.csv", 'a', newline='\n') as log_file:
+        csv_writer = csv.writer(log_file, delimiter=';')
+        csv_writer.writerow(['\n', expected_reward, mean_hits])
+
+    agent.set_policy(agent.get_greedy_policy())
+    print("\nExpected return Estimated")
+
+    with open(prefix2 + prefix + '.pickle', 'wb') as agent_file:
+        pickle.dump(agent, agent_file, pickle.HIGHEST_PROTOCOL)
+        print("Agent saved")
 
     agent.set_policy(agent.get_optimal_policy())
     expected_reward, mean_hits = agent.expected_return_and_hit(1000)
