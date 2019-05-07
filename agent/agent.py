@@ -160,7 +160,7 @@ class Agent:
         if verbose:
             print("Expected return started")
         for _ in range(n):
-            cumulated_reward += self.play(verbose=False)[0]
+            cumulated_reward += self.play(verbose=False)
 
         mean_reward = cumulated_reward / n
 
