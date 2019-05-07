@@ -23,6 +23,9 @@ class NeuralNetworkEstimator:
         self.model.fit(train_in, train_out, verbose=0)
 
     def copy(self, neural_network):
+        """
+            Copy the neural network from a similar other neural network estimator
+        """
         self.model.set_weights(neural_network.model.get_weights())
 
 

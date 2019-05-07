@@ -1,6 +1,5 @@
 import csv
 import matplotlib.pyplot as plt
-import numpy
 
 y_er_static, y_er_uniform, y_er_balanced = [], [], []
 y_h_static, y_h_uniform, y_h_balanced = [], [], []

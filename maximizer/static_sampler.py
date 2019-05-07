@@ -1,7 +1,9 @@
+from maximizer.maximizer import Maximizer
+
 import numpy as np
 
 
-class StaticSampler:
+class StaticSampler(Maximizer):
     def __init__(self, samples_number, arg_max=1.3):
         self.sample_number = samples_number
         self.arg_max = arg_max

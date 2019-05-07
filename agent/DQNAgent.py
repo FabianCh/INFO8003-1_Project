@@ -1,5 +1,4 @@
 from agent.agent import Agent
-from policy.random_policy import RandomPolicy
 from policy.greedy_policy import GreedyPolicy
 from policy.function_policy import FunctionPolicy
 from estimator.neural_network import NeuralNetworkEstimator

@@ -8,6 +8,7 @@ class FittedQIteration(Agent):
         super(FittedQIteration, self).__init__(buffer, estimator, maximizer)
         self.Qn = []
         self.epsilon = 1
+        self.decrease_rate = 0.0001
 
     def play_and_train(self, iteration_number=1000):
         state, is_terminate = self.domain.observe(), False
@@ -84,10 +85,10 @@ class FittedQIteration(Agent):
         return FunctionPolicy(self.Qn[-1], self.maximizer)
 
     def get_greedy_policy(self):
-            result = GreedyPolicy(self.Qn[-1], self.maximizer, self.epsilon)
+        result = GreedyPolicy(self.Qn[-1], self.maximizer, self.epsilon)
 
-            self.epsilon -= self.decrease_rate
-            if self.epsilon < 0.01:
-                self.epsilon = 0.01
+        self.epsilon -= self.decrease_rate
+        if self.epsilon < 0.01:
+            self.epsilon = 0.01
 
-            return result
+        return result

@@ -1,4 +1,3 @@
-import configparser
 from agent.fitted_q_iteration import FittedQIteration
 from agent.DQNAgent import DQNAgent
 from agent.DDQNAgent import DDQNAgent
@@ -12,13 +11,17 @@ from maximizer.static_sampler import StaticSampler
 from maximizer.uniform_sampler import UniformSampler
 from maximizer.balanced_uniform_sampler import BalancedUniformSampler
 from policy.random_policy import RandomPolicy
+
+import configparser
 import csv
+import pickle
 
-# region Parameter Initialisation
+
 config = configparser.ConfigParser()
-config.read('config1.ini')
+config.read('config/config1.ini')
 
 
+# region Buffer Initialisation
 BufferType = config['Agent']['Buffer']
 if BufferType == 'Ordered':
     Buffer = OrderedBuffer()
@@ -28,7 +31,9 @@ elif BufferType == 'Prioritized':
     Buffer = PriorityBuffer()
 else:
     raise ValueError('Buffer strategy unknown')
+# endregion
 
+# region Estimator Initialisation
 EstimatorType = config['Agent']['Estimator']
 if EstimatorType == 'Linear':
     Estimator = LinearRegressorEstimator
@@ -38,28 +43,34 @@ elif EstimatorType == 'NeuralNetwork':
     Estimator = NeuralNetworkEstimator
 else:
     raise ValueError('Estimator unknown')
+# endregion
 
+# region Maximizer Initialisation
 MaximizerType = config['Agent']['Maximizer']
-
-if MaximizerType == 'StaticSampler':
-    NumberOfSample = int(config['StaticSampler']['NumberOfSample'])
+if MaximizerType == 'Static':
+    NumberOfSample = int(config['Static']['NumberOfSample'])
     Maximizer = StaticSampler(NumberOfSample, 1.3)
-elif MaximizerType == 'UniformSampling':
-    NumberOfSample = int(config['UniformSampling']['NumberOfSample'])
+elif MaximizerType == 'Uniform':
+    NumberOfSample = int(config['Uniform']['NumberOfSample'])
     Maximizer = UniformSampler(NumberOfSample, 1.3)
-elif MaximizerType == 'UniformSampling':
-    NumberOfSample = int(config['BalancedUniformSampler']['NumberOfSample'])
+elif MaximizerType == 'BalancedUniform':
+    NumberOfSample = int(config['BalancedUniform']['NumberOfSample'])
     Maximizer = BalancedUniformSampler(NumberOfSample, 1.3)
 else:
     raise ValueError('Maximizer unknown')
+# endregion
 
+# region Initial Buffer Config
 InitialBufferSize = config['Train']['InitialBufferSize']
 if InitialBufferSize == 'None':
     InitialBufferSize = None
 else:
     InitialBufferSize = int(InitialBufferSize)
+# endregion
 
+# region Episodes Config
 Episode = int(config['Train']['Episode'])
+Episode_Size = int(config['Train']['Episode_Size'])
 MiniBatchSize = int(config['Train']['MiniBatchSize'])
 TargetUpdate = int(config['Train']['TargetUpdate'])
 # endregion
@@ -67,7 +78,7 @@ TargetUpdate = int(config['Train']['TargetUpdate'])
 # region Agent Initialisation
 Agent = config['Agent']['Agent']
 if Agent == 'FittedQIteration':
-    agent = FittedQIteration(Buffer, Estimator, Maximizer)
+    agent = FittedQIteration(Estimator, Buffer, Maximizer)
 elif Agent == 'DQNAgent':
     agent = DQNAgent(Buffer, Maximizer, TargetUpdate)
 elif Agent == 'DDQNAgent':
@@ -77,29 +88,49 @@ else:
 # endregion
 
 # region logfile name
-filename = 'output/log/log_'
+prefix2 = 'output/evaluation/'
+prefix = ""
 for part in ['Train', 'Agent', MaximizerType]:
-    filename += part + '--'
+    prefix += part + '--'
     for param in config[part]:
-        filename += param + '_' + config[part][param] + '-'
-filename + '.csv'
+        prefix += param + '_' + config[part][param] + '-'
 # endregion
 
 # region Evaluation Core
 random_policy = RandomPolicy()
-print('Generating buffer...')
-agent.generate_one_step_transition(random_policy, InitialBufferSize)
+agent.set_policy(random_policy)
+print('Generating Initilal Buffer...')
+agent.generate_one_step_transition(InitialBufferSize)
 print('Buffer generated\n')
 
+agent.set_policy(agent.get_greedy_policy())
 
-agent.play_and_train(iteration_number=1000, reset=True)
-for _ in range(Episode):
-    print("New episode")
-    agent.play_and_train(iteration_number=1000, reset=False)
-    policy = agent.get_greedy_policy()
-    expected_reward, mean_hits = agent.expected_return_and_hit(policy)
-    with open(filename, 'a', newline='') as csv_file:
-        csv_writer = csv.writer(csv_file, delimiter=',')
-        csv_writer.writerow(expected_reward)
+with open(prefix2 + prefix + "_log.csv", 'w', newline='\n') as log_file:
+    csv_writer = csv.writer(log_file, delimiter=';')
 
+for i in range(Episode):
+    print("\n\nEpisode " + str(i))
+
+    agent.play_and_train(iteration_number=Episode_Size)
+
+    agent.set_policy(agent.get_optimal_policy())
+    expected_reward, mean_hits = agent.expected_return_and_hit()
+    print("\nExpected return : " + str((expected_reward, mean_hits)))
+    with open(prefix2 + prefix + "_log.csv", 'a', newline='\n') as log_file:
+        csv_writer = csv.writer(log_file, delimiter=';')
+        csv_writer.writerow([expected_reward, mean_hits])
+
+    agent.set_policy(agent.get_greedy_policy())
+
+    with open(prefix2 + prefix + '.pickle', 'wb') as agent_file:
+        pickle.dump(agent, agent_file, pickle.HIGHEST_PROTOCOL)
+        print("Agent saved")
+
+with open(prefix2 + prefix + "_log.csv", 'a', newline='\n') as log_file:
+    csv_writer = csv.writer(log_file, delimiter=';')
+    agent.set_policy(agent.get_optimal_policy())
+    expected_reward, mean_hits = agent.expected_return_and_hit(1000)
+    csv_writer.writerow([expected_reward, mean_hits])
+
+agent.show(prefix2 + prefix[:15:3] + "_animation")
 # endregion

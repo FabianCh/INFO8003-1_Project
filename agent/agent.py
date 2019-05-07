@@ -44,7 +44,6 @@ class Agent:
         if verbose:
             print("Game started")
 
-
         domain = ContinuousCatcher()
         state, is_terminate = domain.observe(), False
         cumulated_reward, hits = 0, 0
@@ -69,6 +68,10 @@ class Agent:
         return cumulated_reward
 
     def show(self, animation_title=None, verbose=False):
+        """
+            Play a game an create an animation
+        """
+
         if animation_title is None:
             animation_title = "animation"
 
@@ -149,7 +152,7 @@ class Agent:
             initial_state = final_state
             action_number += 1
 
-    def expected_return(self, policy, n=100, verbose=False):
+    def expected_return(self, n=100, verbose=False):
         """
             Return the expected value with a policy in a domain
         """
@@ -189,14 +192,26 @@ class Agent:
 
         return mean_reward, mean_hits
 
-    def play_and_train(self):
+    def play_and_train(self, n=None):
+        """
+            Play n action and train the agent according to its training policy
+        """
         pass
 
     def train(self, depth=None, dataset_size=None):
+        """
+            Train the agent on a data set
+        """
         pass
 
     def get_optimal_policy(self):
+        """
+            Get the optimal policy of an agent
+        """
         pass
 
     def get_greedy_policy(self):
+        """
+            Get a greedy policy for the agent
+        """
         pass
