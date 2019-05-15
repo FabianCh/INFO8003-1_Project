@@ -18,7 +18,7 @@ import pickle
 
 
 config = configparser.ConfigParser()
-config.read('config/config1.ini')
+config.read('config/config3.ini')
 
 
 # region Buffer Initialisation
@@ -71,7 +71,6 @@ else:
 # region Episodes Config
 Episode = int(config['Train']['Episode'])
 Episode_Size = int(config['Train']['Episode_Size'])
-MiniBatchSize = int(config['Train']['MiniBatchSize'])
 TargetUpdate = int(config['Train']['TargetUpdate'])
 # endregion
 
@@ -114,11 +113,11 @@ for i in range(Episode):
     agent.play_and_train(iteration_number=Episode_Size)
 
     agent.set_policy(agent.get_optimal_policy())
-    expected_reward, mean_hits = agent.expected_return_and_hit()
-    print("\nExpected return : " + str((expected_reward, mean_hits)))
+    a, b, c, d = agent.expected_return_and_hit()
+    print("\nExpected return : " + str((a, b, c, d)))
     with open(prefix2 + prefix + "_log.csv", 'a', newline='\n') as log_file:
         csv_writer = csv.writer(log_file, delimiter=';')
-        csv_writer.writerow([expected_reward, mean_hits])
+        csv_writer.writerow([a, b, c, d])
 
     agent.set_policy(agent.get_greedy_policy())
 
@@ -129,8 +128,8 @@ for i in range(Episode):
 with open(prefix2 + prefix + "_log.csv", 'a', newline='\n') as log_file:
     csv_writer = csv.writer(log_file, delimiter=';')
     agent.set_policy(agent.get_optimal_policy())
-    expected_reward, mean_hits = agent.expected_return_and_hit(1000)
-    csv_writer.writerow([expected_reward, mean_hits])
+    a, b, c, d = agent.expected_return_and_hit(1000)
+    csv_writer.writerow([a, b, c, d])
 
 agent.show(prefix2 + prefix[:15:3] + "_animation")
 # endregion

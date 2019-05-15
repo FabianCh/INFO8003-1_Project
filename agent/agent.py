@@ -173,24 +173,24 @@ class Agent:
         """
             Return the expected value with a policy in a domain
         """
-        cumulated_reward, cumulated_hits = 0, 0
+        cumulated_reward, cumulated_hits = [], []
 
         if verbose:
             print("Expected return started")
 
         for _ in range(n):
             reward, hits = self.play(return_hits=True, verbose=False)
-            cumulated_reward += reward
-            cumulated_hits += hits
+            cumulated_reward.append(reward)
+            cumulated_hits.append(hits)
 
-        mean_reward = cumulated_reward / n
-        mean_hits = cumulated_hits / n
+        # mean_reward = cumulated_reward / n
+        # mean_hits = cumulated_hits / n
 
         if verbose:
             print("\n Extected return : " + str(mean_reward))
             print("\n Extected hits : " + str(mean_hits))
 
-        return mean_reward, mean_hits
+        return numpy.mean(cumulated_reward), numpy.var(cumulated_reward), numpy.mean(cumulated_hits), numpy.var(cumulated_hits)
 
     def play_and_train(self, n=None):
         """

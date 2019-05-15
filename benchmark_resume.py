@@ -7,7 +7,7 @@ from maximizer.static_sampler import StaticSampler
 from maximizer.uniform_sampler import UniformSampler
 
 config = configparser.ConfigParser()
-config.read('config/config3.ini')
+config.read('config/config1.ini')
 
 # region Maximizer Initialisation
 MaximizerType = config['Agent']['Maximizer']
@@ -38,17 +38,17 @@ with open(prefix2 + prefix + ".pickle", 'rb') as file:
 
 agent.set_policy(agent.get_greedy_policy())
 
-for i in range(25):
+for i in range(56):
     print("\n\nEpisode " + str(i))
 
     agent.play_and_train(iteration_number=1000)
 
     agent.set_policy(agent.get_optimal_policy())
-    expected_reward, mean_hits = agent.expected_return_and_hit()
-    print("\nExpected return : " + str((expected_reward, mean_hits)))
+    a, b, c, d = agent.expected_return_and_hit()
+    print("\nExpected return : " + str((a, b, c, d)))
     with open(prefix2 + prefix + "_log.csv", 'a', newline='\n') as log_file:
         csv_writer = csv.writer(log_file, delimiter=';')
-        csv_writer.writerow([expected_reward, mean_hits])
+        csv_writer.writerow([a, b, c, d])
 
     agent.set_policy(agent.get_greedy_policy())
 
